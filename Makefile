@@ -3,10 +3,20 @@ HOSTNAME=github.com
 NAMESPACE=davidsbond
 NAME=tailscale
 BINARY=terraform-provider-${NAME}
-VERSION=0.1
-OS_ARCH=linux_amd64
+VERSION=0.1.1
+OS_ARCH=darwin_arm64
 
 default: install
+
+clean-example:
+	rm -rf ~/.terraform.d/plugins/github.com/davidsbond/tailscale/0.1.1/darwin_arm64
+	rm -f examples/.terraform.lock.hcl
+	rm -rf examples/.terraform
+
+rebuild-example: clean-example install
+	terraform -chdir=examples init
+	terraform -chdir=examples apply --auto-approve
+
 
 build:
 	go build -o ${BINARY}

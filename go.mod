@@ -56,3 +56,5 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
+
+replace github.com/davidsbond/tailscale-client-go => github.com/pellegrino/tailscale-client-go v1.0.1-0.20220219162301-8f9a05f02d62

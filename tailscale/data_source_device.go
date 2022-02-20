@@ -48,6 +48,7 @@ func dataSourceDeviceRead(ctx context.Context, d *schema.ResourceData, m interfa
 	for _, device := range devices {
 		if device.Name != name {
 			continue
+
 		}
 
 		selected = &device
