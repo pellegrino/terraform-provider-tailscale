@@ -25,15 +25,8 @@ type (
 
 	// The APIError type describes an error as returned by the Tailscale API.
 	APIError struct {
-		Message string         `json:"message"`
-		Data    []APIErrorData `json:"data"`
+		Message string `json:"message"`
 		status  int
-	}
-
-	// The APIErrorData type describes elements of the data field within errors returned by the Tailscale API.
-	APIErrorData struct {
-		User   string   `json:"user"`
-		Errors []string `json:"errors"`
 	}
 
 	// The ClientOption type is a function that is used to modify a Client.
@@ -211,21 +204,15 @@ type ACL struct {
 }
 
 type ACLEntry struct {
-	Action      string   `json:"action" hujson:"Action"`
-	Ports       []string `json:"ports" hujson:"Ports"`
-	Users       []string `json:"users" hujson:"Users"`
-	Source      []string `json:"src" hujson:"Src"`
-	Destination []string `json:"dst" hujson:"Dst"`
-	Protocol    string   `json:"proto" hujson:"Proto"`
+	Action string   `json:"action" hujson:"Action"`
+	Ports  []string `json:"ports" hujson:"Ports"`
+	Users  []string `json:"users" hujson:"Users"`
 }
 
 type ACLTest struct {
-	User        string   `json:"user" hujson:"User"`
-	Allow       []string `json:"allow" hujson:"Allow"`
-	Deny        []string `json:"deny" hujson:"Deny"`
-	Source      string   `json:"src" hujson:"Src"`
-	Destination string   `json:"dst" hujson:"Dst"`
-	Accept      []string `json:"accept" hujson:"Accept"`
+	User  string   `json:"user" hujson:"User"`
+	Allow []string `json:"allow" hujson:"Allow"`
+	Deny  []string `json:"deny" hujson:"Deny"`
 }
 
 type ACLDERPMap struct {
@@ -361,24 +348,11 @@ func (c *Client) DeviceSubnetRoutes(ctx context.Context, deviceID string) (*Devi
 }
 
 type Device struct {
-	Addresses                 []string  `json:"addresses"`
-	Name                      string    `json:"name"`
-	ID                        string    `json:"id"`
-	Authorized                bool      `json:"authorized"`
-	User                      string    `json:"user"`
-	Tags                      []string  `json:"tags"`
-	KeyExpiryDisabled         bool      `json:"keyExpiryDisabled"`
-	BlocksIncomingConnections bool      `json:"blocksIncomingConnections"`
-	ClientVersion             string    `json:"clientVersion"`
-	Created                   time.Time `json:"created"`
-	Expires                   time.Time `json:"expires"`
-	Hostname                  string    `json:"hostname"`
-	IsExternal                bool      `json:"isExternal"`
-	LastSeen                  time.Time `json:"lastSeen"`
-	MachineKey                string    `json:"machineKey"`
-	NodeKey                   string    `json:"nodeKey"`
-	OS                        string    `json:"os"`
-	UpdateAvailable           bool      `json:"updateAvailable"`
+	Addresses  []string `json:"addresses"`
+	Name       string   `json:"name"`
+	ID         string   `json:"id"`
+	Authorized bool     `json:"authorized"`
+	User       string   `json:"user"`
 }
 
 // Devices lists the devices in a tailnet.
@@ -415,7 +389,9 @@ func (c *Client) AuthorizeDevice(ctx context.Context, deviceID string) error {
 // DeleteDevice deletes the device given its deviceID.
 func (c *Client) DeleteDevice(ctx context.Context, deviceID string) error {
 	const uriFmt = "/api/v2/device/%s"
-	req, err := c.buildRequest(ctx, http.MethodDelete, fmt.Sprintf(uriFmt, deviceID), nil)
+	req, err := c.buildRequest(ctx, http.MethodDelete, fmt.Sprintf(uriFmt, deviceID), map[string]bool{
+		"authorized": true,
+	})
 	if err != nil {
 		return err
 	}
@@ -487,41 +463,6 @@ func (c *Client) DeleteKey(ctx context.Context, id string) error {
 	return c.performRequest(req, nil)
 }
 
-// SetDeviceTags updates the tags of a target device.
-func (c *Client) SetDeviceTags(ctx context.Context, deviceID string, tags []string) error {
-	const uriFmt = "/api/v2/device/%s/tags"
-
-	req, err := c.buildRequest(ctx, http.MethodPost, fmt.Sprintf(uriFmt, deviceID), map[string][]string{
-		"tags": tags,
-	})
-	if err != nil {
-		return err
-	}
-
-	return c.performRequest(req, nil)
-}
-
-type (
-	// The DeviceKey type represents the properties of the key of an individual device within
-	// the tailnet.
-	DeviceKey struct {
-		KeyExpiryDisabled bool `json:"keyExpiryDisabled"` // Whether or not this device's key will ever expire.
-		Preauthorized     bool `json:"preauthorized"`     // Whether or not this device is pre-authorized for the tailnet.
-	}
-)
-
-// SetDeviceKey updates the properties of a device's key.
-func (c *Client) SetDeviceKey(ctx context.Context, deviceID string, key DeviceKey) error {
-	const uriFmt = "/api/v2/device/%s/key"
-
-	req, err := c.buildRequest(ctx, http.MethodPost, fmt.Sprintf(uriFmt, deviceID), key)
-	if err != nil {
-		return err
-	}
-
-	return c.performRequest(req, nil)
-}
-
 // IsNotFound returns true if the provided error implementation is an APIError with a status of 404.
 func IsNotFound(err error) bool {
 	var apiErr APIError
@@ -530,15 +471,4 @@ func IsNotFound(err error) bool {
 	}
 
 	return false
-}
-
-// ErrorData returns the contents of the APIError.Data field from the provided error if it is of type APIError. Returns
-// a nil slice if the given error is not of type APIError.
-func ErrorData(err error) []APIErrorData {
-	var apiErr APIError
-	if errors.As(err, &apiErr) {
-		return apiErr.Data
-	}
-
-	return nil
 }

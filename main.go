@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 
-	"github.com/davidsbond/terraform-provider-tailscale/tailscale"
+	"github.com/pellegrino/terraform-provider-tailscale/tailscale"
 )
 
 func main() {

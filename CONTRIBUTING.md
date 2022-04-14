@@ -5,7 +5,7 @@ advice.
 
 ## Raising Issues
 
-Please use the GitHub [issues](https://github.com/davidsbond/terraform-provider-tailscale/issues/new/choose) tab to create a new issue, 
+Please use the GitHub [issues](https://github.com/pellegrino/terraform-provider-tailscale/issues/new/choose) tab to create a new issue,
 choosing an appropriate category from the list available.
 
 This terraform provider is limited by the functionality available in the [Tailscale API](https://github.com/tailscale/tailscale/blob/main/api.md),
@@ -14,15 +14,15 @@ on the [Tailscale repository](https://github.com/tailscale/tailscale) describing
 
 ## Opening Pull Requests
 
-Pull requests are welcome for this repository, please try to link the pull request to an issue or create an issue first before opening 
+Pull requests are welcome for this repository, please try to link the pull request to an issue or create an issue first before opening
 the pull request it relates to.
 
 ## Making Changes
 
 To work in this repository, you will need go 1.17. You can use the standard go toolchain for building and testing your
-changes. 
+changes.
 
-If you want to enable acceptance tests, you *must* set the `TF_ACC` environment variable. 
+If you want to enable acceptance tests, you _must_ set the `TF_ACC` environment variable.
 
 Be careful with acceptance
 tests as they will run against the Tailscale API and use your local environment. You may end up borking your own Tailscale

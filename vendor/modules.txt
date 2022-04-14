@@ -7,7 +7,7 @@ github.com/apparentlymart/go-textseg/v13/textseg
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/davidsbond/tailscale-client-go v1.2.4
+# github.com/davidsbond/tailscale-client-go v1.2.4 => github.com/pellegrino/tailscale-client-go v1.0.1-0.20220219162301-8f9a05f02d62
 ## explicit; go 1.17
 github.com/davidsbond/tailscale-client-go/tailscale
 # github.com/fatih/color v1.13.0
@@ -85,15 +85,15 @@ github.com/hashicorp/hcl/v2/hclsyntax
 # github.com/hashicorp/logutils v1.0.0
 ## explicit
 github.com/hashicorp/logutils
-# github.com/hashicorp/terraform-exec v0.16.0
-## explicit; go 1.14
+# github.com/hashicorp/terraform-exec v0.16.1
+## explicit; go 1.17
 github.com/hashicorp/terraform-exec/internal/version
 github.com/hashicorp/terraform-exec/tfexec
 # github.com/hashicorp/terraform-json v0.13.0
 ## explicit; go 1.13
 github.com/hashicorp/terraform-json
-# github.com/hashicorp/terraform-plugin-go v0.8.0
-## explicit; go 1.16
+# github.com/hashicorp/terraform-plugin-go v0.9.0
+## explicit; go 1.17
 github.com/hashicorp/terraform-plugin-go/internal/logging
 github.com/hashicorp/terraform-plugin-go/tfprotov5
 github.com/hashicorp/terraform-plugin-go/tfprotov5/internal/fromproto
@@ -130,7 +130,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/internal/tfdiags
 github.com/hashicorp/terraform-plugin-sdk/v2/meta
 github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
-# github.com/hashicorp/terraform-registry-address v0.0.0-20210816115301-cb2034eba045
+# github.com/hashicorp/terraform-registry-address v0.0.0-20220131103327-5c1c5e123275
 ## explicit; go 1.14
 github.com/hashicorp/terraform-registry-address
 # github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
@@ -181,7 +181,7 @@ github.com/vmihailenco/msgpack/codes
 ## explicit; go 1.11
 github.com/vmihailenco/msgpack/v4
 github.com/vmihailenco/msgpack/v4/codes
-# github.com/vmihailenco/tagparser v0.1.1
+# github.com/vmihailenco/tagparser v0.1.2
 ## explicit; go 1.13
 github.com/vmihailenco/tagparser
 github.com/vmihailenco/tagparser/internal
@@ -195,7 +195,7 @@ github.com/zclconf/go-cty/cty/function/stdlib
 github.com/zclconf/go-cty/cty/gocty
 github.com/zclconf/go-cty/cty/json
 github.com/zclconf/go-cty/cty/set
-# golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+# golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 ## explicit; go 1.17
 golang.org/x/crypto/cast5
 golang.org/x/crypto/openpgp
@@ -204,7 +204,7 @@ golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/openpgp/errors
 golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
-# golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
+# golang.org/x/net v0.0.0-20220412020605-290c469a71a5
 ## explicit; go 1.17
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -213,7 +213,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e
+# golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
@@ -236,8 +236,8 @@ google.golang.org/appengine/internal/datastore
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
-# google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
-## explicit; go 1.11
+# google.golang.org/genproto v0.0.0-20220413183235-5e96e2839df9
+## explicit; go 1.15
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.45.0
 ## explicit; go 1.14
@@ -290,8 +290,8 @@ google.golang.org/grpc/serviceconfig
 google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
-# google.golang.org/protobuf v1.27.1
-## explicit; go 1.9
+# google.golang.org/protobuf v1.28.0
+## explicit; go 1.11
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire
 google.golang.org/protobuf/internal/descfmt
@@ -323,6 +323,7 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
-# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 ## explicit
 gopkg.in/yaml.v3
+# github.com/davidsbond/tailscale-client-go => github.com/pellegrino/tailscale-client-go v1.0.1-0.20220219162301-8f9a05f02d62
