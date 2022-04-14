@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.5.7
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/go-uuid v1.0.3
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.13.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.14.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tailscale/hujson v0.0.0-20211215203138-ffd971c5f362
 )
@@ -56,5 +56,5 @@ require (
 	google.golang.org/genproto v0.0.0-20220413183235-5e96e2839df9 // indirect
 	google.golang.org/grpc v1.45.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

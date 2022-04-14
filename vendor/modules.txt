@@ -112,8 +112,8 @@ github.com/hashicorp/terraform-plugin-log/internal/hclogutils
 github.com/hashicorp/terraform-plugin-log/internal/logging
 github.com/hashicorp/terraform-plugin-log/tflog
 github.com/hashicorp/terraform-plugin-log/tfsdklog
-# github.com/hashicorp/terraform-plugin-sdk/v2 v2.13.0
-## explicit; go 1.16
+# github.com/hashicorp/terraform-plugin-sdk/v2 v2.14.0
+## explicit; go 1.17
 github.com/hashicorp/terraform-plugin-sdk/v2/diag
 github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging
 github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource
@@ -323,6 +323,6 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
-# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 ## explicit
 gopkg.in/yaml.v3
