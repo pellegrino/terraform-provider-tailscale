@@ -1,9 +1,9 @@
 module github.com/pellegrino/terraform-provider-tailscale
 
-go 1.17
+go 1.18
 
 require (
-	github.com/davidsbond/tailscale-client-go v1.2.4
+	github.com/davidsbond/tailscale-client-go v1.2.5
 	github.com/google/go-cmp v0.5.7
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/go-uuid v1.0.3
@@ -58,5 +58,3 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
-
-replace github.com/davidsbond/tailscale-client-go => github.com/pellegrino/tailscale-client-go v1.0.1-0.20220219162301-8f9a05f02d62

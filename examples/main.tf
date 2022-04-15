@@ -14,7 +14,7 @@ provider "tailscale" {
 
 
 resource "tailscale_device" "example" {
-  name = "example.vitorp.gmail.com"
+  name = "node1.vitorp.gmail.com"
 }
 
 #resource "tailscale_acl" "sample_acl" {

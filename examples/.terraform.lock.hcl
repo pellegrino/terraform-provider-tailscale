@@ -1,10 +1,10 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
-provider "github.com/davidsbond/tailscale" {
-  version     = "0.1.1"
-  constraints = "0.1.1"
+provider "github.com/pellegrino/tailscale" {
+  version     = "0.9.3"
+  constraints = "0.9.3"
   hashes = [
-    "h1:1sYw0eGKJYC7YBbpQcM0UFP6jUanZREdfFYrtJ3WlDc=",
+    "h1:yTiI9uRSaCgmb45NCrUS2N9kEdOmP9lQWKRanefN+qQ=",
   ]
 }

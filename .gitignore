@@ -1,3 +1,4 @@
 examples/terraform.tfstate.backup
 examples/terraform.tfstate
 bin/*
+examples/.terraform
