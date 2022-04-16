@@ -8,14 +8,14 @@ terraform {
 }
 
 provider "tailscale" {
-  #  api_key = "my-api-key"
-  #  tailnet = "my-tailnet"
+  # api_key = "my-api-key"
+  # tailnet = "my tailnet"
 }
 
 
-resource "tailscale_device" "example" {
-  name = "node1.vitorp.gmail.com"
-}
+# resource "tailscale_device" "example" {
+#   name = "device.example.com"
+# }
 
 #resource "tailscale_acl" "sample_acl" {
 #  acl = jsonencode({
@@ -45,12 +45,7 @@ resource "tailscale_device" "example" {
 #  magic_dns = true
 #}
 #
-#resource "tailscale_dns_search_paths" "sample_search_paths" {
-#  search_paths = [
-#    "example.com",
-#  ]
-#}
-#
+
 #output "sample_acl" {
 #  value = tailscale_acl.sample_acl.acl
 #}

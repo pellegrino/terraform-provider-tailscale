@@ -76,17 +76,6 @@ func resourceDeviceCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		}}
 	}
 
-	//if err != nil {
-	//	d.Set("name", deviceName)
-	//	d.SetId("")
-	//	return diag.Diagnostics{
-	//		diag.Diagnostic{
-	//			Severity: diag.Warning,
-	//			Summary:  "Device isn't registered yet",
-	//			Detail:   "This device hasn't been registered yet. It must be created by calling `tailscale up` from the running instance.",
-	//		},
-	//	}
-	//}
 	// stores the retrieved id as ID
 	d.SetId(device.ID)
 	d.Set("name", device.Name)
@@ -114,7 +103,7 @@ func findDevice(ctx context.Context, client *tailscale.Client, deviceName string
 	}
 
 	if selected == nil {
-		return nil, errors.New(fmt.Sprintf("could not find device with name %s", deviceName))
+		return nil, fmt.Errorf("could not find device with name %s", deviceName)
 	}
 
 	return selected, nil
