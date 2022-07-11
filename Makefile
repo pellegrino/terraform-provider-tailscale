@@ -3,7 +3,7 @@ HOSTNAME=github.com
 NAMESPACE=pellegrino
 NAME=tailscale
 BINARY=terraform-provider-${NAME}
-VERSION=0.9.3
+VERSION=0.12.1-device
 OS_ARCH=linux_amd64
 
 default: install
@@ -44,3 +44,7 @@ test:
 
 testacc:
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+
+format:
+	go fmt ./...
+	goimports -w -local github.com/davidsbond .

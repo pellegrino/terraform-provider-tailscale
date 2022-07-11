@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"testing"
 
-	ts "github.com/davidsbond/tailscale-client-go/tailscale"
-	"github.com/pellegrino/terraform-provider-tailscale/tailscale"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pellegrino/terraform-provider-tailscale/tailscale"
+
+	ts "github.com/davidsbond/tailscale-client-go/tailscale"
 )
 
 var testClient *ts.Client

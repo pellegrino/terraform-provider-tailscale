@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -89,7 +90,7 @@ func (c *Client) buildRequest(ctx context.Context, method, uri string, body inte
 
 	var bodyBytes []byte
 	if body != nil {
-		bodyBytes, err = hujson.MarshalIndent(body, "", " ")
+		bodyBytes, err = json.MarshalIndent(body, "", " ")
 		if err != nil {
 			return nil, err
 		}
@@ -118,18 +119,38 @@ func (c *Client) performRequest(req *http.Request, out interface{}) error {
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode >= http.StatusOK && res.StatusCode < http.StatusMultipleChoices {
+		// If we don't care about the response body, leave. This check is required as some
+		// API responses have empty bodies, so we don't want to try and standardize them for
+		// parsing.
+		if out == nil {
+			return nil
+		}
+
+		// If we've got hujson back, convert it to JSON, so we can natively parse it.
+		if !json.Valid(body) {
+			body, err = hujson.Standardize(body)
+			if err != nil {
+				return err
+			}
+		}
+
+		return json.Unmarshal(body, out)
+	}
+
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		var apiErr APIError
-		if err = hujson.NewDecoder(res.Body).Decode(&apiErr); err != nil {
+		if err = json.Unmarshal(body, &apiErr); err != nil {
 			return err
 		}
 
 		apiErr.status = res.StatusCode
 		return apiErr
-	}
-
-	if out != nil {
-		return hujson.NewDecoder(res.Body).Decode(out)
 	}
 
 	return nil
@@ -202,58 +223,75 @@ func (c *Client) DNSNameservers(ctx context.Context) ([]string, error) {
 	return resp["dns"], nil
 }
 
-type ACL struct {
-	ACLs      []ACLEntry          `json:"acls" hujson:"ACLs,omitempty"`
-	Groups    map[string][]string `json:"groups,omitempty" hujson:"Groups,omitempty"`
-	Hosts     map[string]string   `json:"hosts,omitempty" hujson:"Hosts,omitempty"`
-	TagOwners map[string][]string `json:"tagowners,omitempty" hujson:"TagOwners,omitempty"`
-	DERPMap   *ACLDERPMap         `json:"derpMap,omitempty" hujson:"DerpMap,omitempty"`
-	Tests     []ACLTest           `json:"tests,omitempty" hujson:"Tests,omitempty"`
-}
+type (
+	ACL struct {
+		ACLs          []ACLEntry          `json:"acls" hujson:"ACLs,omitempty"`
+		AutoApprovers *ACLAutoApprovers   `json:"autoapprovers,omitempty" hujson:"AutoApprovers,omitempty"`
+		Groups        map[string][]string `json:"groups,omitempty" hujson:"Groups,omitempty"`
+		Hosts         map[string]string   `json:"hosts,omitempty" hujson:"Hosts,omitempty"`
+		TagOwners     map[string][]string `json:"tagowners,omitempty" hujson:"TagOwners,omitempty"`
+		DERPMap       *ACLDERPMap         `json:"derpMap,omitempty" hujson:"DerpMap,omitempty"`
+		Tests         []ACLTest           `json:"tests,omitempty" hujson:"Tests,omitempty"`
+		SSH           []ACLSSH            `json:"ssh,omitempty" hujson:"SSH,omitempty"`
+	}
 
-type ACLEntry struct {
-	Action      string   `json:"action" hujson:"Action"`
-	Ports       []string `json:"ports" hujson:"Ports"`
-	Users       []string `json:"users" hujson:"Users"`
-	Source      []string `json:"src" hujson:"Src"`
-	Destination []string `json:"dst" hujson:"Dst"`
-	Protocol    string   `json:"proto" hujson:"Proto"`
-}
+	ACLAutoApprovers struct {
+		Routes   map[string][]string `json:"routes" hujson:"Routes"`
+		ExitNode []string            `json:"exitNode" hujson:"ExitNode"`
+	}
 
-type ACLTest struct {
-	User   string   `json:"user" hujson:"User"`
-	Allow  []string `json:"allow" hujson:"Allow"`
-	Deny   []string `json:"deny" hujson:"Deny"`
-	Source string   `json:"src" hujson:"Src"`
-	Accept []string `json:"accept" hujson:"Accept"`
-}
+	ACLEntry struct {
+		Action      string   `json:"action" hujson:"Action"`
+		Ports       []string `json:"ports" hujson:"Ports"`
+		Users       []string `json:"users" hujson:"Users"`
+		Source      []string `json:"src" hujson:"Src"`
+		Destination []string `json:"dst" hujson:"Dst"`
+		Protocol    string   `json:"proto" hujson:"Proto"`
+	}
 
-type ACLDERPMap struct {
-	Regions            map[int]*ACLDERPRegion `json:"regions" hujson:"Regions"`
-	OmitDefaultRegions bool                   `json:"omitDefaultRegions,omitempty" hujson:"OmitDefaultRegions,omitempty"`
-}
+	ACLTest struct {
+		User   string   `json:"user" hujson:"User"`
+		Allow  []string `json:"allow" hujson:"Allow"`
+		Deny   []string `json:"deny" hujson:"Deny"`
+		Source string   `json:"src" hujson:"Src"`
+		Accept []string `json:"accept" hujson:"Accept"`
+	}
 
-type ACLDERPRegion struct {
-	RegionID   int            `json:"regionID" hujson:"RegionID"`
-	RegionCode string         `json:"regionCode" hujson:"RegionCode"`
-	RegionName string         `json:"regionName" hujson:"RegionName"`
-	Avoid      bool           `json:"avoid,omitempty" hujson:"Avoid,omitempty"`
-	Nodes      []*ACLDERPNode `json:"nodes" hujson:"Nodes"`
-}
+	ACLDERPMap struct {
+		Regions            map[int]*ACLDERPRegion `json:"regions" hujson:"Regions"`
+		OmitDefaultRegions bool                   `json:"omitDefaultRegions,omitempty" hujson:"OmitDefaultRegions,omitempty"`
+	}
 
-type ACLDERPNode struct {
-	Name             string `json:"name" hujson:"Name"`
-	RegionID         int    `json:"regionID" hujson:"RegionID"`
-	HostName         string `json:"hostName" hujson:"HostName"`
-	CertName         string `json:"certName,omitempty" hujson:"CertName,omitempty"`
-	IPv4             string `json:"ipv4,omitempty" hujson:"IPv4,omitempty"`
-	IPv6             string `json:"ipv6,omitempty" hujson:"IPv6,omitempty"`
-	STUNPort         int    `json:"stunPort,omitempty" hujson:"STUNPort,omitempty"`
-	STUNOnly         bool   `json:"stunOnly,omitempty" hujson:"STUNOnly,omitempty"`
-	DERPPort         int    `json:"derpPort,omitempty" hujson:"DERPPort,omitempty"`
-	InsecureForTests bool   `json:"insecureForRests,omitempty" hujson:"InsecureForTests,omitempty"`
-	STUNTestIP       string `json:"stunTestIP,omitempty" hujson:"STUNTestIP,omitempty"`
-}
+	ACLDERPRegion struct {
+		RegionID   int            `json:"regionID" hujson:"RegionID"`
+		RegionCode string         `json:"regionCode" hujson:"RegionCode"`
+		RegionName string         `json:"regionName" hujson:"RegionName"`
+		Avoid      bool           `json:"avoid,omitempty" hujson:"Avoid,omitempty"`
+		Nodes      []*ACLDERPNode `json:"nodes" hujson:"Nodes"`
+	}
+
+	ACLDERPNode struct {
+		Name             string `json:"name" hujson:"Name"`
+		RegionID         int    `json:"regionID" hujson:"RegionID"`
+		HostName         string `json:"hostName" hujson:"HostName"`
+		CertName         string `json:"certName,omitempty" hujson:"CertName,omitempty"`
+		IPv4             string `json:"ipv4,omitempty" hujson:"IPv4,omitempty"`
+		IPv6             string `json:"ipv6,omitempty" hujson:"IPv6,omitempty"`
+		STUNPort         int    `json:"stunPort,omitempty" hujson:"STUNPort,omitempty"`
+		STUNOnly         bool   `json:"stunOnly,omitempty" hujson:"STUNOnly,omitempty"`
+		DERPPort         int    `json:"derpPort,omitempty" hujson:"DERPPort,omitempty"`
+		InsecureForTests bool   `json:"insecureForRests,omitempty" hujson:"InsecureForTests,omitempty"`
+		STUNTestIP       string `json:"stunTestIP,omitempty" hujson:"STUNTestIP,omitempty"`
+	}
+
+	ACLSSH struct {
+		Action      string   `json:"action" hujson:"Action"`
+		Users       []string `json:"users" hujson:"Users"`
+		Source      []string `json:"src" hujson:"Src"`
+		Destination []string `json:"dst" hujson:"Dst"`
+		CheckPeriod Duration `json:"checkPeriod" hujson:"CheckPeriod"`
+	}
+)
 
 // ACL retrieves the ACL that is currently set for the given tailnet.
 func (c *Client) ACL(ctx context.Context) (*ACL, error) {
@@ -360,20 +398,20 @@ func (c *Client) DeviceSubnetRoutes(ctx context.Context, deviceID string) (*Devi
 	return &resp, nil
 }
 
-// MaybeEmptyTime wraps a time and allows for unmarshalling timestamps that represent an empty time as an empty string (e.g "")
-// this is used by the tailscale API when it returns services that have no created date, such as it's hello service.
-type MaybeEmptyTime struct {
+// Time wraps a time and allows for unmarshalling timestamps that represent an empty time as an empty string (e.g "")
+// this is used by the tailscale API when it returns devices that have no created date, such as its hello service.
+type Time struct {
 	time.Time
 }
 
 // MarshalJSON is an implementation of json.Marshal.
-func (t MaybeEmptyTime) MarshalJSON() ([]byte, error) {
+func (t Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Time)
 }
 
-// MarshalJSON returns nil if it is a blank string, otherwise, returns the result of json.Unmarshal.
-func (t *MaybeEmptyTime) UnmarshalJSON(data []byte) error {
-	if string(data) == "\"\"" {
+// UnmarshalJSON unmarshals the content of data as a time.Time, a blank string will keep the time at its zero value.
+func (t *Time) UnmarshalJSON(data []byte) error {
+	if string(data) == `""` {
 		return nil
 	}
 
@@ -385,24 +423,24 @@ func (t *MaybeEmptyTime) UnmarshalJSON(data []byte) error {
 }
 
 type Device struct {
-	Addresses                 []string       `json:"addresses"`
-	Name                      string         `json:"name"`
-	ID                        string         `json:"id"`
-	Authorized                bool           `json:"authorized"`
-	User                      string         `json:"user"`
-	Tags                      []string       `json:"tags"`
-	KeyExpiryDisabled         bool           `json:"keyExpiryDisabled"`
-	BlocksIncomingConnections bool           `json:"blocksIncomingConnections"`
-	ClientVersion             string         `json:"clientVersion"`
-	Created                   MaybeEmptyTime `json:"created"`
-	Expires                   MaybeEmptyTime `json:"expires"`
-	Hostname                  string         `json:"hostname"`
-	IsExternal                bool           `json:"isExternal"`
-	LastSeen                  MaybeEmptyTime `json:"lastSeen"`
-	MachineKey                string         `json:"machineKey"`
-	NodeKey                   string         `json:"nodeKey"`
-	OS                        string         `json:"os"`
-	UpdateAvailable           bool           `json:"updateAvailable"`
+	Addresses                 []string `json:"addresses"`
+	Name                      string   `json:"name"`
+	ID                        string   `json:"id"`
+	Authorized                bool     `json:"authorized"`
+	User                      string   `json:"user"`
+	Tags                      []string `json:"tags"`
+	KeyExpiryDisabled         bool     `json:"keyExpiryDisabled"`
+	BlocksIncomingConnections bool     `json:"blocksIncomingConnections"`
+	ClientVersion             string   `json:"clientVersion"`
+	Created                   Time     `json:"created"`
+	Expires                   Time     `json:"expires"`
+	Hostname                  string   `json:"hostname"`
+	IsExternal                bool     `json:"isExternal"`
+	LastSeen                  Time     `json:"lastSeen"`
+	MachineKey                string   `json:"machineKey"`
+	NodeKey                   string   `json:"nodeKey"`
+	OS                        string   `json:"os"`
+	UpdateAvailable           bool     `json:"updateAvailable"`
 }
 
 // Devices lists the devices in a tailnet.
@@ -452,9 +490,10 @@ type (
 	KeyCapabilities struct {
 		Devices struct {
 			Create struct {
-				Reusable  bool     `json:"reusable"`
-				Ephemeral bool     `json:"ephemeral"`
-				Tags      []string `json:"tags"`
+				Reusable      bool     `json:"reusable"`
+				Ephemeral     bool     `json:"ephemeral"`
+				Tags          []string `json:"tags"`
+				Preauthorized bool     `json:"preauthorized"`
 			} `json:"create"`
 		} `json:"devices"`
 	}
@@ -530,7 +569,6 @@ type (
 	// the tailnet.
 	DeviceKey struct {
 		KeyExpiryDisabled bool `json:"keyExpiryDisabled"` // Whether or not this device's key will ever expire.
-		Preauthorized     bool `json:"preauthorized"`     // Whether or not this device is pre-authorized for the tailnet.
 	}
 )
 
@@ -564,5 +602,36 @@ func ErrorData(err error) []APIErrorData {
 		return apiErr.Data
 	}
 
+	return nil
+}
+
+// The Duration type wraps a time.Duration, allowing it to be JSON marshalled as a string like "20h" rather than
+// a numeric value.
+type Duration struct {
+	time.Duration
+}
+
+// MarshalJSON is an implementation of json.Marshal.
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Duration.String())
+}
+
+// UnmarshalJSON unmarshals the content of data as a time.Duration, a blank string will keep the duration at its zero value.
+func (d *Duration) UnmarshalJSON(data []byte) error {
+	if string(data) == `""` {
+		return nil
+	}
+
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+
+	dur, err := time.ParseDuration(str)
+	if err != nil {
+		return err
+	}
+
+	d.Duration = dur
 	return nil
 }
