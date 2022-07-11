@@ -13,10 +13,6 @@ clean-example:
 	rm -f examples/.terraform.lock.hcl
 	rm -rf examples/.terraform
 
-rebuild-example: clean-example install
-	terraform -chdir=examples init
-	terraform -chdir=examples apply --auto-approve
-
 build:
 	go build -o ${BINARY}
 
