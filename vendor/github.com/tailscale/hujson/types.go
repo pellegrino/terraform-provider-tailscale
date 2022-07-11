@@ -24,6 +24,14 @@
 // which is byte-for-byte identical to the input if no transformations
 // were performed on the value.
 //
+// A HuJSON value can be transformed using the Minimize, Standardize, Format,
+// or Patch methods. Each of these methods mutate the value in place.
+// Call the Clone method beforehand in order to preserve the original value.
+// The Minimize and Standardize methods coerces HuJSON into standard JSON.
+// The Format method formats the value; it is similar to `go fmt`,
+// but instead for the HuJSON and standard JSON format.
+// The Patch method applies a JSON Patch (RFC 6902) to the receiving value.
+//
 //
 // Grammar
 //
@@ -74,16 +82,13 @@
 //
 // Example usage:
 //
-//	ast, err := hujson.Parse(b)
+//	b, err := hujson.Standardize(b)
 //	if err != nil {
 //		... // handle err
 //	}
-//	ast.Standardize()
-//	b = ast.Pack()
 //	if err := json.Unmarshal(b, &v); err != nil {
 //		... // handle err
 //	}
-//
 package hujson
 
 import (
@@ -106,7 +111,6 @@ import (
 //	'0': number
 //	'{': object
 //	'[': array
-//
 type Kind byte
 
 // Value is an exact syntactic representation of a JSON value.
@@ -331,7 +335,7 @@ type Object struct {
 	// after the preceding open brace or comma and before the closing brace.
 	AfterExtra Extra
 }
-type ObjectMember = struct {
+type ObjectMember struct {
 	Name, Value Value
 }
 
@@ -455,6 +459,11 @@ type composite interface {
 	firstValue() *Value
 	rangeValues(func(*Value) bool) bool
 	lastValue() *Value
+
+	getAt(int) ValueTrimmed
+	setAt(int, ValueTrimmed)
+	insertAt(int, ValueTrimmed)
+	removeAt(int) ValueTrimmed
 
 	beforeExtraAt(int) *Extra
 	afterExtra() *Extra

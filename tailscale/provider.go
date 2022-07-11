@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davidsbond/tailscale-client-go/tailscale"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/davidsbond/tailscale-client-go/tailscale"
 )
 
 type ProviderOption func(p *schema.Provider)
@@ -25,11 +26,20 @@ func Provider(options ...ProviderOption) *schema.Provider {
 				Type:        schema.TypeString,
 				DefaultFunc: schema.EnvDefaultFunc("TAILSCALE_API_KEY", nil),
 				Required:    true,
+				Description: "The API key to use for authenticating requests to the API. Can be set via the TAILSCALE_API_KEY environment variable.",
+				Sensitive:   true,
 			},
 			"tailnet": {
 				Type:        schema.TypeString,
 				DefaultFunc: schema.EnvDefaultFunc("TAILSCALE_TAILNET", nil),
 				Required:    true,
+				Description: "The Tailnet to perform actions in. Can be set via the TAILSCALE_TAILNET environment variable.",
+			},
+			"base_url": {
+				Type:        schema.TypeString,
+				DefaultFunc: schema.EnvDefaultFunc("TAILSCALE_BASE_URL", "https://api.tailscale.com"),
+				Optional:    true,
+				Description: "The base URL of the Tailscale API. Defaults to https://api.tailscale.com. Can be set via the TAILSCALE_BASE_URL environment variable.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -60,8 +70,9 @@ func Provider(options ...ProviderOption) *schema.Provider {
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	apiKey := d.Get("api_key").(string)
 	tailnet := d.Get("tailnet").(string)
+	baseURL := d.Get("base_url").(string)
 
-	client, err := tailscale.NewClient(apiKey, tailnet)
+	client, err := tailscale.NewClient(apiKey, tailnet, tailscale.WithBaseURL(baseURL))
 	if err != nil {
 		return nil, diagnosticsError(err, "failed to initialise client")
 	}

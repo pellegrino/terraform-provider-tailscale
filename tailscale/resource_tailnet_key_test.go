@@ -4,14 +4,16 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/davidsbond/tailscale-client-go/tailscale"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/davidsbond/tailscale-client-go/tailscale"
 )
 
 const testTailnetKey = `
 	resource "tailscale_tailnet_key" "example_key" {
 		reusable = true
 		ephemeral = true
+		preauthorized = true
 		tags = ["tag:server"]
 	}
 `
